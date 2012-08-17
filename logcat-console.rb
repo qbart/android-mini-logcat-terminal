@@ -74,11 +74,11 @@ class LogCat
 					@prev_tag = tag.dup
 				end
 
-				out = "%+25s %c %s" % [tag.strip, sep, msg]
+				out = "%c %+25s %c %s" % [mode, tag.strip, sep, msg]
 				send(mode, out)
 			end
 		else
-			raise "##### Not matched: #{line}"
+			unknown line
 		end
 	end
 
