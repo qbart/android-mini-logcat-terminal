@@ -7,7 +7,7 @@
 # F — Fatal
 # S — Silent (highest priority, on which nothing is ever printed)
 
-class LogCat
+class Logcat
   C_RESET = "\e[0m"
   C_ERROR = "\e[0;31m"
   C_FATAL = "\e[1;31m"
@@ -16,11 +16,14 @@ class LogCat
   C_DEBUG = "\e[0;34m"
   C_VERBOSE = "\e[0;30m"
   C_UNKNOWN = "\e[1;30m"
-
-  TAG_COLUMN_WIDHT = 30
-
+  
+  REGEX = /([VDIWEFS]{1})\/(.+)?\(\s*(\d+?)\)\:(.*)/
+  
+  ERROR_MODES = %w(e f s)
   ALLOWED = %w(f e w i d v)
-
+  
+  TAG_COLUMN_WIDHT = 30
+  
   def initialize
     @prev_tag = nil
   end
@@ -62,11 +65,27 @@ class LogCat
   end
 
   #TODO this method still needs to be improved
-  def process_line(line)
-    result = line.match(/([VDIWEFS]{1})\/(.+)?\(\s*(\d+?)\)\:(.*)/)
+  def process_line(line, filter = nil)
+    result = line.match(REGEX)
 
     if result
       mode = result[1].downcase
+      
+      if filter
+        case filter
+        when :e
+          return unless ERROR_MODES.include?(mode)
+        when :w
+          return unless mode == "w"
+        when :i
+          return unless mode == "i"
+        when :d
+          return unless mode == "d"
+        when :v
+          return unless mode == "v"
+        end
+      end
+      
       tag = result[2]
       msg = result[4]
 
