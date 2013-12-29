@@ -1,8 +1,8 @@
 require 'io/console'
-require './logcat'
+require_relative 'logcat'
 
 class LogReader
-  
+
   def initialize
 
   end
@@ -75,7 +75,7 @@ class LogReader
             log.process_line(line, @filter) unless @break
           else
             #TODO accumulate in buffer for later display
-          end 
+          end
         end
       end
       @io.close if @io && !@io.closed?
@@ -127,11 +127,15 @@ end
 reader = LogReader.new
 
 for i in 1 .. 15  # SIGHUP .. SIGTERM
-  if Signal.trap(i, "SIG_IGN") != 0 then  # 0 for SIG_IGN
-    Signal.trap(i) do |signal|
-      reader.close
-      exit signal
+  begin
+    if Signal.trap(i, "SIG_IGN") != 0 then  # 0 for SIG_IGN
+      Signal.trap(i) do |signal|
+        reader.close
+        exit signal
+      end
     end
+  rescue
+    puts $!
   end
 end
 
